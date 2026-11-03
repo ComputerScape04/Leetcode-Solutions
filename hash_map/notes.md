@@ -1,63 +1,31 @@
-When to look for a Hash Map / Hash Set approach:
-- You need $O(1)$ average time lookups, insertions, or deletions.
-- Finding pairs, complements, or frequencies (e.g., target sum complements `target - x`).
-- Tracking seen elements or finding duplicates/intersections.
-- Grouping elements by an invariant key (e.g., sorted string, canonical representation).
-- Mapping relationships (e.g., character isomorphic mapping, clone graph node mapping).
-- Fast prefix state lookups (prefix sum with hash map to count subarrays equaling $k$).
+# Hash Map / Hash Set
 
-Common problem types:
-- Complement lookup:
-  - Check if `target - nums[i]` exists in map while iterating (e.g., Two Sum).
-- Frequency counting / Bucketing:
-  - Count occurrences of characters or numbers; sort by frequency (e.g., Top K Frequent Elements, Valid Anagram).
-- Grouping by signature:
-  - Canonical key serves as map bucket (e.g., Group Anagrams using sorted string or char count as key).
-- Prefix sum + Hash map:
-  - Store frequency of prefix sums to find subarrays summing to $k$ in $O(N)$ (e.g., Subarray Sum Equals K).
-- Set operations / Consecutive sequences:
-  - Insert elements into `unordered_set`, then check `set.count(x - 1)` to find sequence starts (e.g., Longest Consecutive Sequence).
+### Recognition
+- Need $O(1)$ average time lookups, insertions, or deletions.
+- Finding complements (`target - x`), pairs, or tracking frequencies.
+- Grouping elements sharing an invariant signature (e.g., sorted string).
+- Detecting duplicates or tracking visited states/cycles.
+- Counting subarrays meeting target criteria (combined with prefix sums).
 
-Core Templates:
+### Common Patterns
+- **Complement Lookup**:
+  - Check if `target - nums[i]` exists in map during a single pass (*Two Sum*).
+- **Frequency Counting & Bucketing**:
+  - Track counts via `unordered_map<T, int>`; bucket or sort by frequency (*Top K Frequent Elements*, *Valid Anagram*).
+- **Grouping by Canonical Key**:
+  - Normalize elements into a key (e.g., sorted string, character count tuple) and group in `unordered_map<Key, vector<T>>` (*Group Anagrams*).
+- **Prefix Sum + Hash Map**:
+  - Store prefix sum frequencies to count subarrays summing to $k$ in $O(N)$ (*Subarray Sum Equals K*).
+- **Sequence Boundary in Set**:
+  - Insert all numbers into `unordered_set`. Only start counting consecutive streak from `x` if `x - 1` is NOT in set (*Longest Consecutive Sequence*).
 
-1. Complement Lookup (Two Sum):
-```cpp
-unordered_map<int, int> seen; // val -> index
-for (int i = 0; i < nums.size(); ++i) {
-    int complement = target - nums[i];
-    if (seen.count(complement)) {
-        return {seen[complement], i};
-    }
-    seen[nums[i]] = i;
-}
-```
+### Core Steps (Prefix Sum + Hash Map)
+1. Initialize `map[0] = 1` (base case: empty prefix sum).
+2. Maintain running `currSum += x`:
+   - If `(currSum - target)` exists in map: add `map[currSum - target]` to `count`.
+   - Increment `map[currSum]++`.
 
-2. Grouping by Canonical Key (Group Anagrams):
-```cpp
-unordered_map<string, vector<string>> groups;
-for (const string& s : strs) {
-    string key = s;
-    sort(key.begin(), key.end());
-    groups[key].push_back(s);
-}
-```
-
-3. Prefix Sum Tracking (Subarray Sums):
-```cpp
-unordered_map<long long, int> prefixCounts;
-prefixCounts[0] = 1; // base case: sum of empty prefix
-long long currSum = 0, count = 0;
-for (int num : nums) {
-    currSum += num;
-    if (prefixCounts.count(currSum - target)) {
-        count += prefixCounts[currSum - target];
-    }
-    prefixCounts[currSum]++;
-}
-```
-
-Key Traps:
-- `operator[]` inserts a default-initialized value: calling `mp[key]` modifies map size if key is missing. Use `mp.count(key)` or `mp.find(key)` to inspect without inserting.
-- Missing custom hash: `std::unordered_map` cannot hash compound keys (`std::pair`, `std::vector`) without a custom hash struct. Use `std::map` or string serialization instead.
-- Worst-case time complexity: hash collisions degrade operations to $O(N)$. For competitive programming / anti-hash tests, reserve capacity or use custom hash seeds.
-- Memory overhead: hash maps carry high node overhead; for dense integer keys in a small range (e.g. lowercase letters), prefer a fixed-size array `int freq[26] = {0}`.
+### Key Traps
+- **Default Insertion with `[]`**: Accessing `mp[key]` inserts a default value and increases map size if missing. Use `mp.count(key)` or `mp.find(key)` for read-only checks.
+- **Missing Custom Hasher**: `std::unordered_map` cannot hash `std::pair` or `std::vector` without a custom hash struct; use `std::map` or serialize to string instead.
+- **Memory Overhead**: Hash maps carry significant node overhead. For small/fixed alphabets (e.g., lowercase letters), prefer a flat array (`int freq[26] = {0}`).

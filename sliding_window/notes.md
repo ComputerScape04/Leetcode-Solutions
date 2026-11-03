@@ -1,21 +1,28 @@
-Pattern to recognize:
-    - Subarray / Substring
-    - Maximum / Minimum
-    - Length / Sum
+# Sliding Window
 
-Window Types:
-    - Fixed-size: Window size k is constant. Expand right to k, then shift both pointers together.
-    - Variable-size: Expand right to include elements; shrink left when condition breaks (or to minimize).
+### Recognition
+- Contiguous sequence problem (subarray, substring).
+- Optimization goal (max/min sum, longest/shortest length, target count).
+- Monotonic property: expanding window only increases (or maintains) the tracked metric.
 
-Core Template:
-    1. Initialize `left = 0`, state tracking (sum, hash map).
-    2. Loop `right` from 0 to N - 1 and add `nums[right]` to state.
-    3. Shrink with `while (condition invalid)`: remove `nums[left]` from state, increment `left`.
-    4. Update result using window length `right - left + 1`.
+### Window Types
+- **Fixed-Size ($k$)**:
+  - Build initial window of size $k$.
+  - Slide by adding `nums[right]` and removing `nums[right - k]`.
+- **Variable-Size**:
+  - Expand `right` to include elements and update state.
+  - Shrink `left` with `while (condition violated)` (or to minimize window).
 
-Key Traps:
-    - Window length formula is always `right - left + 1`.
-    - Monotonicity required: negative numbers usually break simple two-pointer sliding window (use prefix sums instead).
+### Core Steps
+1. Initialize `left = 0`, state tracking (sum, frequency map), `ans`.
+2. Iterate `right` from `0` to `n - 1`:
+   - Add `nums[right]` to current window state.
+   - While window is invalid (or while valid, if minimizing):
+     - Remove `nums[left]` from state.
+     - Increment `left++`.
+   - Update `ans` using window length `right - left + 1`.
 
-Resources:
-    - https://youtu.be/dOonV6byDEg?si=UgxRF9wWS1TSWrr-
+### Key Traps
+- **Window Length Formula**: Always `right - left + 1`.
+- **Monotonicity Breakdown**: Negative numbers break standard sliding window; use **Prefix Sum + Hash Map** instead.
+- **Shrink Condition**: Distinguish between *finding maximum window* (shrink while invalid) and *finding minimum window* (shrink while valid).

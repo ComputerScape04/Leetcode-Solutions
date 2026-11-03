@@ -1,22 +1,36 @@
-When to look for a two-pointer approach:
-- The input array or string is sorted, or sorting it does not violate time constraints (O(n log n) is acceptable).
-- You need to find pairs, triplets, or subarrays satisfying a condition or target sum.
-- You need to compare or swap elements from opposite ends moving inward.
-- You need to modify an array in-place without using extra space (O(1) memory requirement).
-- You are working with a linked list or cyclic sequence where cycle detection or finding a midpoint is needed.
-- You are comparing or merging two different sorted sequences at the same time.
+# Two Pointers
 
-Common problem types and pointer setups:
-- Opposite ends (left and right moving inward):
-  - Target sum pairs / triplets (e.g., Two Sum II, 3Sum).
-  - Palindrome checking and string reversals (e.g., Valid Palindrome, Reverse String).
-  - Boundary and area problems where greedy choices eliminate one side (e.g., Container With Most Water, Trapping Rain Water).
-- Fast and slow (same direction at different speeds):
-  - Cycle detection in linked lists or arrays (Floyd's Tortoise and Hare).
-  - Finding the middle node of a linked list.
-- Read and write pointers (same direction at conditional speeds):
-  - In-place deduplication and element removal (e.g., Remove Duplicates from Sorted Array, Move Zeroes).
-  - Partitioning elements (e.g., Sort Colors / Dutch National Flag).
-- Two separate arrays / strings (one pointer in each):
-  - Subsequence checks (e.g., Is Subsequence).
-  - Merging two sorted collections (e.g., Merge Sorted Array).
+### Recognition
+- Input is sorted (or sortable in $O(N \log N)$).
+- Finding pairs, triplets, or subarrays meeting a target sum or condition.
+- Modifying arrays in-place ($O(1)$ auxiliary space).
+- Comparing elements from opposite ends or traversing two sequences simultaneously.
+- Cycle detection or finding midpoints in linked lists.
+
+### Common Patterns
+- **Opposite Ends (`left`, `right` inward)**:
+  - Target sum pairs and triplets (*Two Sum II*, *3Sum*).
+  - Palindrome validation and string reversals (*Valid Palindrome*).
+  - Greedy area/boundary elimination (*Container With Most Water*, *Trapping Rain Water*).
+- **Fast & Slow**:
+  - Cycle detection and entry point (*Floyd's Tortoise and Hare*).
+  - Linked list midpoint (`slow` 1 step, `fast` 2 steps).
+- **Read & Write (same direction, conditional pace)**:
+  - In-place element removal and deduplication (*Remove Duplicates*, *Move Zeroes*).
+  - Three-way partitioning (*Sort Colors* / Dutch National Flag).
+- **Two Sequences**:
+  - Merging sorted collections (*Merge Sorted Array*).
+  - Subsequence checking (*Is Subsequence*).
+
+### Core Steps
+- **Opposite Ends**:
+  1. Set `left = 0`, `right = n - 1`.
+  2. While `left < right`: evaluate `sum = nums[left] + nums[right]`.
+  3. If `sum == target`: record/return; if `sum < target`: `left++`; else: `right--`.
+- **Read & Write**:
+  1. Set `write = 0`.
+  2. Loop `read` from `0` to `n - 1`: if `nums[read]` matches condition, set `nums[write++] = nums[read]`.
+
+### Key Traps
+- **Duplicate Skipping**: Skip identical elements (`while (left < right && nums[left] == nums[left + 1]) left++`) to avoid duplicate pairs/triplets.
+- **Loop Boundary**: Use `left < right` for distinct pairs; use `left <= right` when the center element must be processed.
