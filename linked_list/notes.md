@@ -1,35 +1,33 @@
 # Linked List
 
-### Recognition
-- Dynamic sequential structure requiring $O(1)$ node insertion/deletion at a pointer.
-- Sub-quadratic or $O(1)$ auxiliary space constraint.
-- Operations involving pointer rewiring, reversal, reordering, or cycle detection.
+## Signals
+- Dynamic sequence requiring $O(1)$ node insertion/deletion.
+- $O(1)$ auxiliary space constraint.
+- Pointer rewiring, reversal, midpoint, or cycle detection.
 
-### Common Patterns
-- **Dummy Head (`ListNode dummy(0, head)`)**:
-  - Eliminates edge cases when the head node is deleted, updated, or prepended (*Merge Two Sorted Lists*, *Remove Nth Node From End*).
+## Key Variations
+- **Dummy Node (`ListNode dummy(0, head)`)**: Eliminates edge cases when deleting, inserting, or modifying the head.
 - **Fast & Slow Pointers**:
-  - *Midpoint*: `slow` moves 1 step, `fast` moves 2 steps; when `fast` ends, `slow` is at mid.
-  - *Cycle Detection*: Collision indicates a cycle (*Linked List Cycle*).
-  - *Cycle Start*: Reset `slow` to `head`; move both 1 step until they meet (*Linked List Cycle II*).
-- **Fixed Offset (Gap of $k$)**:
-  - Advance `fast` by $k$ steps first, then move both pointers together (*Remove Nth Node From End*).
-- **In-Place Reversal**:
-  - Rewire pointers sequentially using `prev`, `curr`, and `next` (*Reverse Linked List*, *Reverse Nodes in k-Group*).
+  - *Midpoint*: `slow` moves 1 step, `fast` moves 2 steps.
+  - *Cycle Detection*: Collision implies cycle (Floyd's algorithm).
+  - *Cycle Entry*: Reset `slow = head`; move both 1 step until they meet.
+- **Fixed Gap ($k$ steps)**: Advance `fast` by $k$ steps first, then advance both together (e.g. *Remove Nth from End*).
 
-### Core Steps
-- **In-Place Reversal**:
-  1. Initialize `prev = nullptr`, `curr = head`.
-  2. While `curr != nullptr`:
-     - `ListNode* nxt = curr->next;`
-     - `curr->next = prev; prev = curr; curr = nxt;`
-  3. Return `prev`.
-- **Fast & Slow**:
-  1. Initialize `slow = head`, `fast = head`.
-  2. While `fast && fast->next`:
-     - `slow = slow->next; fast = fast->next->next;`
+## Code Skeleton
+```cpp
+// Midpoint / Cycle Detection
+ListNode *slow = head, *fast = head;
+while (fast && fast->next) {
+    slow = slow->next;
+    fast = fast->next->next;
+    if (slow == fast) {
+        // Cycle detected
+        break;
+    }
+}
+```
 
-### Key Traps
-- **Null Pointer Dereference**: Always guard `fast && fast->next` before accessing `fast->next->next`.
-- **Lost Next Pointer**: Cache `curr->next` in a temporary variable before mutating `curr->next`.
-- **Dangling Cycles**: Explicitly set the tail node's `next = nullptr` after segment rearrangements.
+## Traps
+- **Null Pointer Dereference**: Always check `while (fast && fast->next)` before calling `fast->next->next`.
+- **Modifying Head Directly**: Returning modified `head` fails if the original head was deleted; return `dummy.next` instead.
+- **Dangling Cycles**: After rearranging segments, always set the new tail's `next = nullptr`.

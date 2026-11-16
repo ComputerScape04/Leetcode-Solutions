@@ -1,36 +1,29 @@
 # Two Pointers
 
-### Recognition
-- Input is sorted (or sortable in $O(N \log N)$).
-- Finding pairs, triplets, or subarrays meeting a target sum or condition.
-- Modifying arrays in-place ($O(1)$ auxiliary space).
-- Comparing elements from opposite ends or traversing two sequences simultaneously.
-- Cycle detection or finding midpoints in linked lists.
+## Signals
+- Array is sorted (or sortable in $O(N \log N)$).
+- Finding pairs/triplets meeting a target sum or condition.
+- In-place partitioning or modifying array with $O(1)$ extra space.
+- Symmetric comparison from opposite ends (palindromes, area container).
 
-### Common Patterns
-- **Opposite Ends (`left`, `right` inward)**:
-  - Target sum pairs and triplets (*Two Sum II*, *3Sum*).
-  - Palindrome validation and string reversals (*Valid Palindrome*).
-  - Greedy area/boundary elimination (*Container With Most Water*, *Trapping Rain Water*).
-- **Fast & Slow**:
-  - Cycle detection and entry point (*Floyd's Tortoise and Hare*).
-  - Linked list midpoint (`slow` 1 step, `fast` 2 steps).
-- **Read & Write (same direction, conditional pace)**:
-  - In-place element removal and deduplication (*Remove Duplicates*, *Move Zeroes*).
-  - Three-way partitioning (*Sort Colors* / Dutch National Flag).
-- **Two Sequences**:
-  - Merging sorted collections (*Merge Sorted Array*).
-  - Subsequence checking (*Is Subsequence*).
+## Key Variations
+- **Opposite Ends (`left`, `right`)**: Move inward based on comparison (Two Sum II, Container With Most Water).
+- **Fast & Slow**: Cycle detection (Floyd's algorithm) or linked list midpoint.
+- **Read & Write (Same Direction)**: `read` scans elements, `write` collects valid ones in-place (Remove Duplicates, Move Zeroes).
+- **Two Sequences**: Merging sorted arrays, subsequence checking.
 
-### Core Steps
-- **Opposite Ends**:
-  1. Set `left = 0`, `right = n - 1`.
-  2. While `left < right`: evaluate `sum = nums[left] + nums[right]`.
-  3. If `sum == target`: record/return; if `sum < target`: `left++`; else: `right--`.
-- **Read & Write**:
-  1. Set `write = 0`.
-  2. Loop `read` from `0` to `n - 1`: if `nums[read]` matches condition, set `nums[write++] = nums[read]`.
+## Code Skeleton
+```cpp
+// Opposite Ends (e.g., Two Sum II)
+int left = 0, right = n - 1;
+while (left < right) {
+    int sum = nums[left] + nums[right];
+    if (sum == target) return {left, right};
+    else if (sum < target) left++;
+    else right--;
+}
+```
 
-### Key Traps
-- **Duplicate Skipping**: Skip identical elements (`while (left < right && nums[left] == nums[left + 1]) left++`) to avoid duplicate pairs/triplets.
-- **Loop Boundary**: Use `left < right` for distinct pairs; use `left <= right` when the center element must be processed.
+## Traps
+- **Skipping Duplicates**: In triplet/pair counting (e.g. 3Sum), advance past duplicate values: `while (left < right && nums[left] == nums[left + 1]) left++;`.
+- **Loop Bounds**: Use `left < right` for distinct pair problems; use `left <= right` when the center element must be processed (e.g. binary search, palindromes).

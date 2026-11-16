@@ -1,41 +1,33 @@
 # Heap / Priority Queue
 
-### Recognition
-- Finding the $k$-th smallest / largest element in a static collection or dynamic stream.
-- Repeatedly querying and extracting minimums or maximums in $O(\log N)$ time.
-- Merging $k$ sorted lists, sequences, or intervals.
-- Greedy simulations where next best choice depends on dynamic states (e.g., CPU scheduling, room allocations).
-- Tracking running medians or percentiles in a data stream (two-heap pattern).
+## Signals
+- Finding the $k$-th smallest / largest element in a stream or array.
+- Continuous dynamic min/max queries in $O(\log N)$ time.
+- Merging $k$ sorted lists or scheduling intervals.
+- Tracking running medians in real time.
 
-### Common Patterns
-- **Top $K$ Largest Elements**:
-  - Maintain a **Min-Heap of size $k$**. Push elements and pop when size $> k$. Root holds the $k$-th largest (*Kth Largest Element in an Array*, *Top K Frequent Elements*).
-- **Top $K$ Smallest Elements**:
-  - Maintain a **Max-Heap of size $k$**. Pop when size $> k$. Root holds the $k$-th smallest.
-- **Two Heaps (Running Median)**:
-  - Max-Heap for smaller half, Min-Heap for larger half. Keep sizes balanced within 1 (*Find Median from Data Stream*).
-- **Merge $K$ Sorted Streams**:
-  - Push first element of each list into a Min-Heap `{val, list_index}`. Pop minimum, then push next element from that list (*Merge k Sorted Lists*).
-- **Interval & Room Allocation**:
-  - Sort intervals by start time; use a Min-Heap of end times to recycle freed rooms (*Meeting Rooms II*).
+## Key Variations
+- **Top $K$ Largest Elements**: Use a **Min-Heap of size $k$**. Pop when size $> k$; top holds the $k$-th largest.
+- **Top $K$ Smallest Elements**: Use a **Max-Heap of size $k$**. Pop when size $> k$; top holds the $k$-th smallest.
+- **Two Heaps (Median)**: Max-Heap for smaller half, Min-Heap for larger half. Keep sizes balanced $\le 1$.
+- **Merge $K$ Sorted Streams**: Min-Heap holding `{val, list_index}`. Pop minimum, advance that list.
 
-### Syntax & Comparators
-- **Max-Heap (Default)**: `priority_queue<int> maxHeap;`
-- **Min-Heap**: `priority_queue<int, vector<int>, greater<int>> minHeap;`
-- **Custom Comparator Rule**:
-  - If `comp(a, b)` returns `true`, **`a` has lower priority than `b`** (`b` rises to top).
-  ```cpp
-  struct Compare {
-      bool operator()(const pair<int, int>& a, const pair<int, int>& b) const {
-          return a.second > b.second; // Min-heap based on second element
-      }
-  };
-  priority_queue<pair<int, int>, vector<pair<int, int>>, Compare> pq;
-  ```
+## Code Skeleton
+```cpp
+// Min-Heap of size K (Finds K-th Largest)
+priority_queue<int, vector<int>, greater<int>> minHeap;
 
-### Key Traps
-- **Top $K$ Inversion Rule**: Finding $k$ **largest** elements requires a **Min-Heap** of size $k$ (so the smallest of the top $k$ can be evicted).
-- **Heap is NOT Sorted**: Only `top()` is guaranteed to be the extremum; elements underneath are partially ordered (`heap[k-1]` has no meaning).
-- **`pop()` Returns `void`**: Must call `top()` before `pop()` to capture the value.
-- **Empty Guard**: Calling `top()` or `pop()` on an empty heap causes undefined behavior; always verify `!pq.empty()`.
-- **$O(N)$ Build-Heap**: Initializing via `priority_queue<int> pq(nums.begin(), nums.end())` takes $O(N)$ using Floyd's build-heap, whereas inserting elements one by one takes $O(N \log N)$.
+for (int x : nums) {
+    minHeap.push(x);
+    if (minHeap.size() > k) {
+        minHeap.pop(); // Evicts the smallest among top elements
+    }
+}
+return minHeap.top(); // K-th largest
+```
+
+## Traps
+- **Inversion Rule**: To find $k$ **largest**, use a **Min-Heap** (so smallest of the candidates is evicted).
+- **`pop()` is `void`**: In C++, `pq.pop()` does not return the element. Call `pq.top()` first.
+- **Empty Guard**: Calling `top()` or `pop()` on an empty heap causes undefined behavior.
+- **$O(N)$ Build**: Constructing via `priority_queue<int> pq(nums.begin(), nums.end())` is $O(N)$, whereas pushing one-by-one is $O(N \log N)$.
