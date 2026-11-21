@@ -1,33 +1,39 @@
 # Heap / Priority Queue
 
 ## Signals
-- Finding the $k$-th smallest / largest element in a stream or array.
-- Continuous dynamic min/max queries in $O(\log N)$ time.
-- Merging $k$ sorted lists or scheduling intervals.
+- Dynamically finding the $k$-th smallest or largest elements in a stream or array.
+- Continuous min/max queries in $O(\log N)$ time.
+- Merging $k$ sorted lists or scheduling overlapping intervals.
 - Tracking running medians in real time.
 
+## Useful Observations
+- **Heap Inversion Rule**:
+  - To find the $k$-th **largest** element, use a **Min-Heap of size $k$** (pops the smaller elements, leaving largest $k$ at bottom and $k$-th largest at top).
+  - To find the $k$-th **smallest** element, use a **Max-Heap of size $k$**.
+- **$O(N)$ Heapify vs $O(N \log N)$ Insert**: Building a heap all at once via range constructor `priority_queue<int> pq(nums.begin(), nums.end())` takes $O(N)$ time, whereas pushing elements one by one takes $O(N \log N)$.
+- **Two Balanced Heaps for Running Median**: Maintain a Max-Heap for the smaller half and a Min-Heap for the larger half; balance sizes so difference is $\le 1$.
+- **K-Way Merge via Min-Heap**: Push `{val, row, col}` of the first element of each list; pop min and insert its immediate successor to merge $K$ lists in $O(N \log K)$ time.
+
 ## Key Variations
-- **Top $K$ Largest Elements**: Use a **Min-Heap of size $k$**. Pop when size $> k$; top holds the $k$-th largest.
-- **Top $K$ Smallest Elements**: Use a **Max-Heap of size $k$**. Pop when size $> k$; top holds the $k$-th smallest.
-- **Two Heaps (Median)**: Max-Heap for smaller half, Min-Heap for larger half. Keep sizes balanced $\le 1$.
-- **Merge $K$ Sorted Streams**: Min-Heap holding `{val, list_index}`. Pop minimum, advance that list.
+- **K-th Largest Element**: Min-Heap of size $k$.
+- **Two Heaps (Median)**: Max-Heap for lower half, Min-Heap for upper half.
+- **K-Way Merge**: Min-Heap tracking active heads across $k$ sorted streams.
+- **Custom Comparator**: Compare structs or pairs: `priority_queue<T, vector<T>, Compare>`.
 
 ## Code Skeleton
 ```cpp
-// Min-Heap of size K (Finds K-th Largest)
+// K-th Largest Element using Min-Heap of size K
 priority_queue<int, vector<int>, greater<int>> minHeap;
-
 for (int x : nums) {
     minHeap.push(x);
     if (minHeap.size() > k) {
-        minHeap.pop(); // Evicts the smallest among top elements
+        minHeap.pop(); // Evicts smallest among top candidates
     }
 }
 return minHeap.top(); // K-th largest
 ```
 
 ## Traps
-- **Inversion Rule**: To find $k$ **largest**, use a **Min-Heap** (so smallest of the candidates is evicted).
-- **`pop()` is `void`**: In C++, `pq.pop()` does not return the element. Call `pq.top()` first.
-- **Empty Guard**: Calling `top()` or `pop()` on an empty heap causes undefined behavior.
-- **$O(N)$ Build**: Constructing via `priority_queue<int> pq(nums.begin(), nums.end())` is $O(N)$, whereas pushing one-by-one is $O(N \log N)$.
+- **`pop()` Return Type**: In C++, `pq.pop()` returns `void`; always inspect `pq.top()` before popping.
+- **Calling `top()` on Empty Heap**: Accessing `top()` on an empty priority queue causes undefined behavior.
+- **Custom Comparator Semantics**: `std::priority_queue` uses inverted comparator logic compared to `std::sort`; returning `a > b` builds a Min-Heap.

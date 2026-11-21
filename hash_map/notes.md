@@ -1,21 +1,27 @@
 # Hash Map / Hash Set
 
 ## Signals
-- Fast $O(1)$ lookup, frequency counting, or membership tests.
+- Average $O(1)$ key lookup, existence check, or frequency counting.
 - Finding complements (`target - x`) in a single pass.
-- Grouping elements by an invariant key (e.g. sorted string for anagrams).
-- Detecting duplicates or tracking visited states.
+- Grouping elements by invariant canonical signatures (e.g., anagrams).
+- Tracking unique elements or visited states.
+
+## Useful Observations
+- **Complement Lookup Eliminates Nested Loops**: Look up `target - nums[i]` while iterating; avoids $O(N^2)$ brute-force pair searching.
+- **Canonical Key Normalization**: Group equivalent items by sorting strings or serializing character count arrays into strings (`#1#0#2...`) as map keys.
+- **Streak Boundary Check Eliminates Redundant Work**: In Longest Consecutive Sequence, only launch counting from $x$ if $x - 1$ is absent from the set; avoids $O(N^2)$ repeated walks and ensures $O(N)$ runtime.
+- **Fixed Array over Hash Map for Small Alphabets**: For lowercase English letters (`a-z`), replace `unordered_map` with a fixed-size `vector<int> count(26)` or `int count[26]` for faster cache-friendly lookups without hashing overhead.
 
 ## Key Variations
-- **Complement Lookup**: Look up `target - nums[i]` while iterating (Two Sum).
-- **Frequency Map & Bucketing**: Count occurrences; bucket by frequency for top-k frequent.
-- **Canonical Key Grouping**: Sort string or serialize state to group anagrams / equivalent configurations.
-- **Streak Boundary (Set)**: Put elements into `unordered_set`. Only start a streak from `x` if `x - 1` is not in set (Longest Consecutive Sequence).
+- **Complement Lookup**: Two Sum and pair matching.
+- **Frequency Map & Bucketing**: Top-K frequent elements using count maps and bucket arrays.
+- **Signature Grouping**: Group Anagrams using sorted string keys.
+- **Sequence Boundary Check**: Longest Consecutive Sequence using `unordered_set`.
 
 ## Code Skeleton
 ```cpp
-// Complement Lookup (Two Sum)
-unordered_map<int, int> seen; // val -> index
+// Two Sum Complement Lookup
+unordered_map<int, int> seen;
 for (int i = 0; i < nums.size(); i++) {
     int complement = target - nums[i];
     if (seen.count(complement)) {
@@ -26,6 +32,6 @@ for (int i = 0; i < nums.size(); i++) {
 ```
 
 ## Traps
-- **Default Insertion via `[]`**: Accessing `mp[key]` silently inserts `key` with default value 0 and expands map size. Use `mp.count(key)` or `mp.find(key)` for checks.
-- **No Hash for Pairs**: `std::unordered_map` cannot hash `std::pair` or `std::vector` out of the box; serialize to string or use `std::map`.
-- **Memory Overhead**: Hash maps have node pointer overhead. For small alphabets (e.g. lowercase letters), prefer a fixed array `int freq[26] = {0}`.
+- **Default Insertion via `[]`**: Accessing `mp[key]` automatically default-inserts `key` with value 0, inadvertently modifying map size; use `mp.count(key)` or `mp.find(key)`.
+- **Unhashable Types**: `std::unordered_map` has no default hash function for `std::pair` or `std::vector`; use a custom hash, serialize to string, or use `std::map`.
+- **Hash Collisions in Worst Case**: Adversarial inputs can cause $O(N)$ bucket collisions in `unordered_map`; reserve capacity with `mp.reserve()` if needed.

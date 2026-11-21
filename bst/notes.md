@@ -1,32 +1,33 @@
-# Binary Search Tree (BST) Notes
+# Binary Search Tree (BST)
 
-## Core Properties
-1. **Inorder Traversal**: An inorder traversal (`Left -> Root -> Right`) of a BST yields strictly increasing values.
-2. **Subtree Invariant**: Every node in the left subtree must be `< root->val`; every node in the right subtree must be `> root->val`.
+## Signals
+- Sorted tree queries, range searches, or predecessor/successor lookups.
+- Validating binary search tree structure.
+- Finding Lowest Common Ancestor (LCA) in BST.
 
----
+## Useful Observations
+- **Inorder Traversal is Strictly Sorted**: An inorder traversal (`Left -> Root -> Right`) of a valid BST always yields values in strictly increasing order.
+- **Range Propagation for $O(N)$ Validation**: Validate a BST in top-down fashion by passing valid allowable range `(low, high)` down to subtrees; left child gets `(low, val)`, right child gets `(val, high)`.
+- **$O(H)$ LCA without Traversal Overhead**: If both search targets are smaller than current node, branch left; if both are greater, branch right; otherwise, current node is the LCA split point.
+- **Pointer Comparison Prevents Inorder Vector Allocation**: Instead of saving the full inorder traversal into a vector, keep a single `TreeNode* prev` pointer to check `prev->val >= curr->val` on the fly in $O(1)$ extra space.
 
-## LeetCode 98: Validate Binary Search Tree
+## Key Variations
+- **Validate BST**: Check valid ranges recursively with `long long` limits or track `prev` node in an inorder traversal.
+- **K-th Smallest Element**: Perform inorder traversal and decrement $k$ at each visited node; stop when $k = 0$.
+- **LCA in BST**: Use value comparisons to decide whether to walk left, right, or return root.
 
-### Approaches
-1. **Range Propagation (Optimal)**
-   - Pass valid bounds `(low, high)` down to subtrees.
-   - Left child range: `(low, node->val)`.
-   - Right child range: `(node->val, high)`.
-   - Time: $O(N)$, Space: $O(H)$ recursion stack.
-   - Early exits on first violation.
+## Code Skeleton
+```cpp
+// Validate BST using Range Bounds
+bool isValidBST(TreeNode* root, long long low = LLONG_MIN, long long high = LLONG_MAX) {
+    if (!root) return true;
+    if (root->val <= low || root->val >= high) return false;
+    return isValidBST(root->left, low, root->val) &&
+           isValidBST(root->right, root->val, high);
+}
+```
 
-2. **Inorder with Previous Pointer**
-   - Track `prev` node pointer during traversal.
-   - Fail if `prev != nullptr && node->val <= prev->val`.
-   - Time: $O(N)$, Space: $O(H)$.
-
-3. **Inorder to Vector (Suboptimal)**
-   - Collect all elements into `vector<int>` and check if sorted.
-   - Time: $O(N)$, Space: $O(N)$ extra memory.
-   - Cannot exit early.
-
-### Critical Edge Cases
-- **Integer overflow**: Node values can equal `INT_MAX` or `INT_MIN`. Use `long long` bounds (`LLONG_MIN`, `LLONG_MAX`) or `TreeNode*` boundary pointers.
-- **Duplicates**: BST definition requires strictly less/greater (`<=` or `>=` is invalid).
-- **Empty / Single Node**: Empty tree is valid; single node tree is valid.
+## Traps
+- **Local vs Global Invariant**: Checking only `root->left->val < root->val` is insufficient; all nodes in the left subtree must be smaller than the root.
+- **Integer Limits Overflow**: BST node values can equal `INT_MIN` or `INT_MAX`; initialize bounds using `LLONG_MIN` and `LLONG_MAX` or node pointers.
+- **Strict Inequalities**: BST definition does not allow duplicate values (`<=` or `>=` violates the BST property).

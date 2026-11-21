@@ -1,17 +1,22 @@
 # Linked List
 
 ## Signals
-- Dynamic sequence requiring $O(1)$ node insertion/deletion.
-- $O(1)$ auxiliary space constraint.
-- Pointer rewiring, reversal, midpoint, or cycle detection.
+- Dynamic sequence requiring $O(1)$ node insertion and deletion.
+- Constant $O(1)$ auxiliary space constraint.
+- Pointer rewiring, reversal, midpoint detection, or cycle detection.
+
+## Useful Observations
+- **Dummy Node Eliminates Head Edge Cases**: Using a sentinel node (`ListNode dummy(0, head)`) eliminates special branching when deleting or modifying the head node.
+- **Fast and Slow Pointers (Floyd's Algorithm)**:
+  - *Midpoint*: `slow` advances 1 step, `fast` advances 2 steps; when `fast` reaches end, `slow` is at midpoint.
+  - *Cycle Detection*: Collision between `slow` and `fast` proves a cycle exists.
+  - *Cycle Entrance*: After collision, reset `slow = head`; advance both 1 step at a time until they meet at the cycle entrance.
+- **Fixed-Gap Pointers for N-th from End**: Advance `fast` pointer $N$ steps ahead first; then advance `slow` and `fast` together until `fast->next == nullptr`; `slow->next` is the target to delete.
 
 ## Key Variations
-- **Dummy Node (`ListNode dummy(0, head)`)**: Eliminates edge cases when deleting, inserting, or modifying the head.
-- **Fast & Slow Pointers**:
-  - *Midpoint*: `slow` moves 1 step, `fast` moves 2 steps.
-  - *Cycle Detection*: Collision implies cycle (Floyd's algorithm).
-  - *Cycle Entry*: Reset `slow = head`; move both 1 step until they meet.
-- **Fixed Gap ($k$ steps)**: Advance `fast` by $k$ steps first, then advance both together (e.g. *Remove Nth from End*).
+- **Dummy Node**: Deleting node values or removing duplicates.
+- **Two Pointers (Fast / Slow)**: Midpoint retrieval and cycle detection.
+- **Fixed Gap ($k$ steps)**: Removing $N$-th node from the end.
 
 ## Code Skeleton
 ```cpp
@@ -28,6 +33,6 @@ while (fast && fast->next) {
 ```
 
 ## Traps
-- **Null Pointer Dereference**: Always check `while (fast && fast->next)` before calling `fast->next->next`.
-- **Modifying Head Directly**: Returning modified `head` fails if the original head was deleted; return `dummy.next` instead.
-- **Dangling Cycles**: After rearranging segments, always set the new tail's `next = nullptr`.
+- **Null Pointer Dereference**: Always verify `while (fast && fast->next)` before accessing `fast->next->next`.
+- **Returning Mutated Head Directly**: Returning `head` fails if the original head was deleted; return `dummy.next` instead.
+- **Memory Leaks in C++**: In interview environments, remember to delete unlinked nodes if explicit cleanup is requested.

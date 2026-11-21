@@ -1,16 +1,24 @@
 # Intervals
 
 ## Signals
-- Input is a list of ranges $[start, end]$.
-- Merging overlapping intervals or inserting into a sorted list.
-- Finding concurrent overlaps (meeting rooms, resource allocation).
+- Input consists of ranges $[start, end]$.
+- Merging overlapping intervals or inserting into an already sorted list.
+- Calculating concurrent overlaps (meeting rooms, resource allocation).
 - Maximizing non-overlapping intervals (interval scheduling).
 
+## Useful Observations
+- **Sorting Criterion Dictates the Solution**:
+  - Merging overlapping intervals: sort by **start time**.
+  - Maximizing non-overlapping intervals (min removals): sort by **end time**.
+- **Containment Trap (`max` is Mandatory)**: When merging intervals like `[1, 8]` and `[2, 4]`, always update `prev.end = max(prev.end, curr.end)` to avoid truncating containment.
+- **Min-Heap for Room Allocation (Meeting Rooms II)**: Sort intervals by start time; store end times in a Min-Heap. If `minHeap.top() <= curr.start`, pop and reuse that room; otherwise push a new room.
+- **Touch Overlap Sensitivity**: Always confirm whether touching endpoints count as overlap ($[1, 2]$ and $[2, 3]$ overlap $\iff$ `curr.start <= prev.end`).
+
 ## Key Variations
-- **Merge Overlapping**: Sort by **start**. If `curr.start <= prev.end`, merge: `prev.end = max(prev.end, curr.end)`.
-- **Insert Interval**: Add all before, merge overlapping with `newInterval`, then add all after.
-- **Max Non-Overlapping (Min Removals)**: Sort by **end time**. Greedily pick intervals that end earliest.
-- **Meeting Rooms II**: Sort by **start**. Maintain a Min-Heap of end times; reuse room if `heap.top() <= curr.start`.
+- **Merge Overlapping**: Sort by start time; extend `merged.back()[1] = max(..., curr[1])`.
+- **Insert Interval**: Add all intervals strictly before, merge overlapping with `newInterval`, then append remaining.
+- **Min Removals for Non-Overlapping**: Sort by end time; keep the one ending earliest.
+- **Meeting Rooms II**: Sort by start time; maintain a Min-Heap of active finish times.
 
 ## Code Skeleton
 ```cpp
@@ -28,8 +36,6 @@ for (int i = 1; i < intervals.size(); i++) {
 ```
 
 ## Traps
-- **Sorting Criterion**:
-  - Sort by **start time** for merging and room allocations.
-  - Sort by **end time** for greedy interval scheduling (max non-overlapping).
-- **Containment Trap**: For `[1, 8]` and `[2, 4]`, always use `max(prev.end, curr.end) = 8`. Forgetting `max` overwrites `8` with `4`.
-- **Touch Overlap**: Check problem definition: does $[1, 2]$ and $[2, 3]$ overlap? Use `<=` if yes, `<` if no.
+- **Forgetting `max()` on End Update**: Directly assigning `prev.end = curr.end` breaks when a larger interval completely contains a smaller subsequent interval.
+- **Inclusive vs Exclusive Endpoints**: Pay close attention to whether intervals are $[start, end]$ (closed) or $[start, end)$ (half-open).
+- **Missing Sort**: Never assume the input intervals are already sorted unless explicitly stated.
